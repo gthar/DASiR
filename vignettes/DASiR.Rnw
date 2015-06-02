@@ -1,0 +1,262 @@
+\documentclass[nogin,a4paper,11pt]{article}
+
+\usepackage{bm}         %needed for bold greek letters and math symbols
+\usepackage{hyperref}   % use for hypertext links, including those to external documents and URLs
+\usepackage{graphicx}   % need for PS figures
+\usepackage{natbib}    %number and author-year style referencing
+\usepackage{fullpage}  %full page support
+\usepackage{bookmark}
+\usepackage[small]{caption}
+
+\parskip 8pt
+\setlength{\abovecaptionskip}{-1ex} 
+% \setlength{\belowcaptionskip}{2ex}
+
+\pagestyle{plain} 
+%\VignetteIndexEntry{Programmatic retrieval of information from DAS servers}
+
+\begin{document}
+
+\title{Programmatic retrieval of information from DAS \\ servers using the \textbf{DASiR} package}
+\author{Oscar Flores Guri and Anna Mantsoki \\
+\small{Institute for Research in Biomedicine \& Barcelona Supercomputing Center} \\
+\small{Joint Program on Computational Biology}}
+%\date{}  %comment to include current date
+
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+Distributed Annotation System (DAS) is a protocol for information exchange between
+a server and a client. Is widely used in bioinformatics and the most important repositories
+include a DAS server parallel to their main front-end. Few examples are 
+\href{http://genome.ucsc.edu/cgi-bin/das/dsn}{"UCSC"}, \href{http://www.ensembl.org/das/dsn}{"Ensembl"}
+or \href{http://www.ebi.ac.uk/das-srv/uniprot/das}{"UniProt"}.
+
+The \textsf{DASiR} package provides a convenient R-DAS interface to programmatically access
+DAS servers available from your network. It supports the main features of DAS 1.6
+protocol providing a convenient interface to R users to a huge amount of biological information. 
+DAS uses XML and HTTP protocols, so the server deployment and client requirements are significantly
+less than MySQL or BioMart based alternatives. You can find an browsable list with more than 1500 
+on-line DAS servers in the url \url{http://www.dasregistry.org}. 
+
+Despite the DAS protocol supports querying different kinds of data, \textsf{DASiR} has been
+designed with ranges-features in mind. Querying genomic sequences and protein structures is
+also supported, but you probably will find better ways to access such data in R if you requiere
+an intensive use of them (\textsf{Biostrings} genomes or \textsf{Bio3dD} package for PDB structure,
+for example). 
+
+Here you have a brief summary of the main functions of \textsf{DASiR}:
+\begin{itemize}
+\item Set/get the DAS server: \texttt{setDasServer}, \texttt{getDasServer}
+\item Retrieve the data sources: \texttt{getDasSource}, \texttt{getDasDsn}
+\item Retrieve the entry points and types: \texttt{getDasEntries}, \texttt{getDatTypes}
+\item Retrieve information about the features: \texttt{getDasFeature}
+\item Nucleotide/amino acid sequence retrieval: \texttt{getDasSequence}
+\item Protein 3D structure retrieval: \texttt{getDasStructure}
+\end{itemize}
+
+For detailed information about these functions and how to use them refer to the 
+\textsf{DASiR} manual or give a look to the following sections for an overview.
+
+<<library, echo=FALSE>>=
+library(DASiR)
+?DASiR
+@
+
+\section{DAS metadata information handling}
+\label{sec:DAS} 
+
+As an important part of the dialog between the client and the server consists on knowing which
+information has every server, \textsf{DASiR} provides the following functions to query metadata
+from a DAS server.
+
+The first step before start quering and retrieving information is, of course, set the DAS server
+we will use during this session. Notice that DASiR only supports one active DAS session per R
+instance. 
+
+To set the server we will use the function \texttt{setDasServer}:
+
+<<setget>>=
+setDasServer(server="http://genome.ucsc.edu/cgi-bin/das")
+getDasServer()
+@
+
+
+The function \texttt{getDasSource()} will return the id's, the titles and the capabilities of the data
+sources available in the server in the form of a data frame. This function is important since it
+is necessary to use the exact name ("id" or "title" depending on the server) as reference name
+in the other functions of the package.
+
+<<sources>>=
+#sources = getDasSource() #This will fail for UCSC (but no for ENSEMBL)
+sources = getDasDsn() #This will fail for ENSEMBL (but no for UCSC)
+head(sources)
+@
+
+We should also take into account that the values in  capabilities of each data source returned by this
+function. If we query an unknown name or we query for a capability that is not implemented in the server
+(for example we ask for a atomic structure to a sequence server) \textsf{DASiR} will return a NULL value, 
+but due to the nature of HTTP based queries, we cannot detect the origin of this error without overloading
+the server with cross-calls.
+
+Despite "sources" is the common way to recover server features, some servers (as UCSC) are still using
+the deprecated "dsn" option to get the ids of the different datasets. The rule of a thumb is that if
+the first don't work, try the second.
+
+Once we have the name of the database we want to query, we need to know where we can look. This is called
+"entry point" and could be from a protein ID to a chromosome number (depending on the type of server, 
+of course). Notice that output will be a GRanges by default (if the server supplies start, stop and id values).
+If this is not possible or texttt{as.GRanges=FALSE}, the output will be a data.frame.
+
+<<entries>>=
+source = "sacCer3"
+entries = getDasEntries(source, as.GRanges=TRUE)
+head(entries)
+@
+
+Finally, the different attributes we can ask for, called "types" could be obtained with the
+function \texttt{getDasTypes}.
+
+<<types>>=
+types = getDasTypes(source)
+head(types)
+@
+
+Think about Sources as the name of the database, Entries are the tables of this database and
+finally Types are the columns on this table.
+
+In general a \texttt{character} vector is returned for most of the functions, except for 
+\texttt{getDasSource} and \texttt{getDasEntries} which return a data.frame with the name of the
+entry the ranges of the elements and possibly other attributes depending on the server.
+
+
+\section{Querying features}
+\label{sec:DAS features} 
+
+The \texttt{getDasFeature} function queries the DAS server and returns the available information
+for the  type(s) at the given range(s).
+
+
+<<getDasFeature>>=
+ranges=entries[c(1,2)]
+types=c("sgdGene","mrna")
+  
+features = getDasFeature(source, ranges, types)
+head(features)
+@
+
+A \texttt{data.frame} is returned with the contents of the specific annotation for the given ranges
+and types in the server (again, note that servers could provide different/additional information
+for types with the same name).
+
+
+\section{Querying nucleotide or amino acid sequence}
+\label{sec:DAS sequence} 
+
+The \texttt{getDasSequence} function queries the DAS server and retrieves the nucleotide
+or amino acid sequence for the given ranges.
+
+<<getDasSequence>>=
+#Now we will retrieve sequences from VEGA server
+setDasServer("http://vega.sanger.ac.uk/das")
+source = "Homo_sapiens.VEGA51.reference"
+ranges = GRanges(c("1","2"), IRanges(start=10e6, width=1000))
+
+#Returning character vector, we only ask 50 first bases in the range
+sequences = getDasSequence(source, resize(ranges, fix="start", 50))        
+
+print(sequences)
+@
+
+An \texttt{character} vector is returned (the default class) containing the nucleotide or
+amino acid sequences that match the content of the annotation for the given ranges in
+the server. Automatic conversion to Biostring classes is supported with the \texttt{class}
+attribute:
+
+<<getDasSequence2>>=
+#Now we specify we want a AAStringSet (Biostring class for AminoAcids strings)
+#and query for the whole sequence length
+sequences = getDasSequence(source, ranges, class="AAStringSet")
+print(sequences)
+@
+
+\section{Query a protein 3D structure}
+\label{sec:DAS structure} 
+
+The \texttt{getDasStructure} function queries the DAS server and retrieves the 3D
+structure, including metadata and coordinates for the given query (ID of the reference
+structure) using the data source id (or title).
+
+<<getDasStructure>>=
+#On 2013-03-05 there are 2 structure servers in dasregistry.org...
+setDasServer(server="http://das.sanger.ac.uk/das")       
+
+#Get the sources with "structure" capability...
+sources = getDasSource()
+sources[grep("structure", sources$capabilities),]
+source="structure" #...which name is also "structure"
+
+query="1HCK" #PDB code
+  
+structure=getDasStructure(source,query)
+  
+head(structure)
+@
+
+An \texttt{data.frame} is returned with the information of every atom of the reference structure
+of the given query. Notice that a single residue (identified by groupID and name) has few atoms
+inside. Depending on your purposes, you can find this way to represent the structural information
+unconvenient (for example, if you are used to work with PDB format). Structure query in DAS seems
+a secondary feature of the protocol (as only 2 servers out of >1500 are supporting it) but anyway
+we wanted to support the maximum amount of features that DAS protocol implement. We realize that
+are better options to work with PDB files, but maybe this one can help you for quick structural
+analysis.
+
+\section{Plotting of obtained features}
+\label{sec:plot features}
+
+The \texttt{plotFeatures} function creates a basic plot with the features retrieved by 
+\texttt{getDasFeature} or adds them to an existing plot.
+
+<<getPlotFeature, echo=TRUE>>=
+#Let's retrieve some genes from UCSC Genome Browser DAS Server now
+setDasServer(server="http://genome.ucsc.edu/cgi-bin/das")
+
+#Official yeast genes and other annotated features in the range I:22k-30k
+source = "sacCer3" #Saccharomices Cerevisiae
+range = GRanges(c("I"), IRanges(start=22000, end=30000))
+type  = c("sgdGene", "sgdOther") #This is also the name of the UCSC tracks
+	
+features = getDasFeature(source, range, type)
+#Only the main columns
+head(features[,c("id", "label", "type", "start", "end")])
+
+plotFeatures(features, box.height=10, box.sep=15, pos.label="top", xlim=c(22000,30000))
+@
+
+<<plotFeature, results=hide, fig=TRUE, include=FALSE, echo=FALSE>>=
+par(mar=c(6,3,0,3), cex=0.75)
+plotFeatures(features, box.height=10, box.sep=15, pos.label="top", xlim=c(22000,30000))
+@
+
+\begin{figure}[h]
+\centering
+<<plotFeature, fig=TRUE, echo=FALSE, width=6, height=2>>=
+<<plotFeature>>
+@
+\caption{\label{fig:plotFeatures}
+	 Basic feature plot generated with \texttt{getDasFeature} and \texttt{plotFeatures}
+}
+\end{figure}
+
+
+The \texttt{plotFeatures} function is a simple way of drawing text boxes in a new
+or an existing plot with the features retrieved. Notice that when overplotting
+to a already open graphical device, the x-coordinates must match.
+
+
+And this is all. You can find more detailed information and examples of each function
+in the R manpages for \textsf{DASiR}. We hope this package helps you in your data mining.
+
+\end{document}
