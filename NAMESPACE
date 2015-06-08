@@ -3,3 +3,8 @@
 export(getDasFeature, setDasServer, getDasServer, getDasSource, getDasDsn,
        getDasEntries, getDasTypes, getDasStructure, plotFeatures,
        getDasSequence)
+
+importFrom(XML, xmlTreeParse, xmlSApply, xmlApply, xmlRoot, xmlAttrs, xmlSize,
+           xmlValue, htmlTreeParse)
+
+import(GenomicRanges,IRanges,Biostrings)

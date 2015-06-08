@@ -7,6 +7,7 @@ Author: Oscar Flores, Anna Mantsoki
 Maintainer: Ricard Illa <ricard.illa@irbbarcelona.org>
 Description: R package for programmatic retrieval of information from DAS servers
 License: LGPL (>= 3)
-Depends: IRanges, GenomicRanges, XML, Biostrings
+Depends: Biostrings,IRanges,GenomicRanges
+Imports: XML
 LazyLoad: yes
 biocViews: Annotation
