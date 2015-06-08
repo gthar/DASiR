@@ -1,5 +1,5 @@
 #exportPattern("^[[:alpha:]]+")
 
 export(getDasFeature, setDasServer, getDasServer, getDasSource, getDasDsn,
-			getDasEntries, getDasTypes, getDasStructure, plotFeatures, getDasSequence)
-
+       getDasEntries, getDasTypes, getDasStructure, plotFeatures,
+       getDasSequence)

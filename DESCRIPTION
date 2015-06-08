@@ -2,10 +2,9 @@ Package: DASiR
 Type: Package
 Title: Distributed Annotation System in R
 Version: 1.9.0
-Date: 2013-06-14
+Date: 2015-06-08
 Author: Oscar Flores, Anna Mantsoki
-Maintainer: Oscar Flores <oflores@mmb.pcb.ub.es>, Anna Mantsoki
-        <anna.mantsoki@bsc.es>
+Maintainer: Ricard Illa <ricard.illa@irbbarcelona.org>
 Description: R package for programmatic retrieval of information from DAS servers
 License: LGPL (>= 3)
 Depends: IRanges, GenomicRanges, XML, Biostrings
