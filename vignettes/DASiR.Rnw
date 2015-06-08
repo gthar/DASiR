@@ -183,36 +183,36 @@ for the given ranges and types in the server (again, note that servers could
 provide different/additional information for types with the same name).
 
 
-% \section{Querying nucleotide or amino acid sequence}
-% \label{sec:DAS sequence} 
-% 
-% The \texttt{getDasSequence} function queries the DAS server and retrieves the nucleotide
-% or amino acid sequence for the given ranges.
-% 
-% <<getDasSequence>>=
-% #Now we will retrieve sequences from VEGA server
-% setDasServer("http://vega.sanger.ac.uk/das")
-% source = "Homo_sapiens.VEGA51.reference"
-% ranges = GRanges(c("1","2"), IRanges(start=10e6, width=1000))
-% 
-% #Returning character vector, we only ask 50 first bases in the range
-% sequences = getDasSequence(source, resize(ranges, fix="start", 50))        
-% 
-% print(sequences)
-% @
-% 
-% An \texttt{character} vector is returned (the default class) containing the nucleotide or
-% amino acid sequences that match the content of the annotation for the given ranges in
-% the server. Automatic conversion to Biostring classes is supported with the \texttt{class}
-% attribute:
-% 
-% <<getDasSequence2>>=
-% #Now we specify we want a AAStringSet (Biostring class for AminoAcids strings)
-% #and query for the whole sequence length
-% sequences = getDasSequence(source, ranges, class="AAStringSet")
-% print(sequences)
-% @
-% 
+\section{Querying nucleotide or amino acid sequence}
+\label{sec:DAS sequence} 
+
+The \texttt{getDasSequence} function queries the DAS server and retrieves the
+nucleotide or amino acid sequence for the given ranges.
+
+<<getDasSequence>>=
+# Now we will retrieve sequences from VEGA server
+setDasServer("http://vega.sanger.ac.uk/das")
+source <- "Homo_sapiens.VEGA51.reference"
+ranges <- GRanges(c("1","2"), IRanges(start=10e6, width=1000))
+
+# Returning character vector, we only ask 50 first bases in the range
+sequences <- getDasSequence(source, resize(ranges, fix="start", 50))
+
+print(sequences)
+@
+
+An \texttt{character} vector is returned (the default class) containing the
+nucleotide or amino acid sequences that match the content of the annotation
+for the given ranges in the server. Automatic conversion to Biostring classes
+is supported with the \texttt{class} attribute:
+
+<<getDasSequence2>>=
+# Now we specify we want a AAStringSet (Biostring class for AminoAcids strings)
+# and query for the whole sequence length
+sequences <- getDasSequence(source, ranges, class="AAStringSet")
+print(sequences)
+@
+
 % \section{Query a protein 3D structure}
 % \label{sec:DAS structure} 
 % 
