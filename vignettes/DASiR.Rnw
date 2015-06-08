@@ -213,37 +213,34 @@ sequences <- getDasSequence(source, ranges, class="AAStringSet")
 print(sequences)
 @
 
-% \section{Query a protein 3D structure}
-% \label{sec:DAS structure} 
-% 
-% The \texttt{getDasStructure} function queries the DAS server and retrieves the 3D
-% structure, including metadata and coordinates for the given query (ID of the reference
-% structure) using the data source id (or title).
-% 
-% <<getDasStructure>>=
-% #On 2013-03-05 there are 2 structure servers in dasregistry.org...
-% setDasServer(server="http://das.sanger.ac.uk/das")       
-% 
-% #Get the sources with "structure" capability...
-% sources = getDasSource()
-% sources[grep("structure", sources$capabilities),]
-% source="structure" #...which name is also "structure"
-% 
-% query="1HCK" #PDB code
-%   
-% structure=getDasStructure(source,query)
-%   
-% head(structure)
-% @
-% 
-% An \texttt{data.frame} is returned with the information of every atom of the reference structure
-% of the given query. Notice that a single residue (identified by groupID and name) has few atoms
-% inside. Depending on your purposes, you can find this way to represent the structural information
-% unconvenient (for example, if you are used to work with PDB format). Structure query in DAS seems
-% a secondary feature of the protocol (as only 2 servers out of >1500 are supporting it) but anyway
-% we wanted to support the maximum amount of features that DAS protocol implement. We realize that
-% are better options to work with PDB files, but maybe this one can help you for quick structural
-% analysis.
+\section{Query a protein 3D structure}
+\label{sec:DAS structure}
+
+The \texttt{getDasStructure} function queries the DAS server and retrieves
+the 3D structure, including metadata and coordinates for the given query (ID
+of the reference structure) using the data source id (or title).
+
+<<getDasStructure>>=
+setDasServer(server="http://das.cathdb.info/das")
+
+source="cath_pdb"
+query="1hck"  # PDB code
+
+structure=getDasStructure(source, query)
+
+head(structure)
+@
+
+An \texttt{data.frame} is returned with the information of every atom of the
+reference structure of the given query. Notice that a single residue
+(identified by groupID and name) has few atoms inside. Depending on your
+purposes, you can find this way to represent the structural information
+unconvenient (for example, if you are used to work with PDB format).
+Structure query in DAS seems a secondary feature of the protocol (as only 2
+servers out of >1500 are supporting it) but anyway we wanted to support the
+maximum amount of features that DAS protocol implement. We realize that there
+are better options to work with PDB files, but maybe this one can help you
+for quick structural analysis.
 
 \section{Plotting of obtained features}
 \label{sec:plot features}

@@ -54,18 +54,13 @@
     \code{\link{getDasFeature} \link{getDas-functions} \link{getDasSequence}}
 }
 \examples{
-    # #Set DAS server
-    # setDasServer(server="http://das.sanger.ac.uk/das")
+    # Set DAS server
+    setDasServer(server="http://das.cathdb.info/das")
 
-    # #Get the sources with "structure" capability...
-    # sources = getDasSource()
-    # sources[grep("structure", sources$capabilities),]
-    # source="structure" #...which name is also "structure"
+    source <- "cath_pdb"
+    query <- "1hck"  # PDB code
 
-    # query="1HCK" #PDB code
-
-    # structure=getDasStructure(source,query)
-
-    # head(structure)
+    structure <- getDasStructure(source, query)
+    head(structure)
 }
 \keyword{ manip }
