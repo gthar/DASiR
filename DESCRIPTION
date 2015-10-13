@@ -1,7 +1,7 @@
 Package: DASiR
 Type: Package
 Title: Distributed Annotation System in R
-Version: 1.9.0
+Version: 1.11.0
 Date: 2015-06-08
 Author: Oscar Flores, Anna Mantsoki
 Maintainer: Ricard Illa <ricard.illa@irbbarcelona.org>
